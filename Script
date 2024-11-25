@@ -1,0 +1,66 @@
+# Install required libraries
+!pip install --quiet gspread pandas fpdf2
+
+import os
+import gspread
+import pandas as pd
+from fpdf import FPDF
+from google.colab import auth
+from google.auth import default
+
+# Step 1: Authenticate and connect to Google Sheets
+auth.authenticate_user()
+creds, _ = default()
+gc = gspread.authorize(creds)
+
+# Step 2: Load data from Google Sheets
+sheet_url = 'https://docs.google.com/spreadsheets/d/13uznePcbzOTIxpYNIVmOkZFzKpHXH-I4g2vIVwtjiO8/edit?usp=sharing'  # Replace with your Google Sheet URL
+worksheet = gc.open_by_url(sheet_url).sheet1  # Fetch the first sheet
+data = worksheet.get_all_records()  # Get all records as a list of dictionaries
+df = pd.DataFrame(data)  # Convert to a pandas DataFrame
+
+# Step 3: Define the PDF class
+class PDF(FPDF):
+    def header(self):
+        self.set_font("Arial", size=12)
+        self.cell(0, 10, "GNSS Observation Log Sheet", align="C", ln=1)
+
+    def add_table(self, record):
+        self.set_font("Arial", size=10)
+        self.set_fill_color(220, 220, 220)  # Gray fill for headers
+        self.cell(190, 10, "", ln=1)  # Spacer line
+
+        # Draw table
+        for key, value in record.items():
+            # Draw row headers
+            self.cell(95, 10, key, border=1, ln=0, align="L", fill=True)
+            # Draw row values
+            self.cell(95, 10, str(value), border=1, ln=1, align="L")
+
+# Step 4: Process each record and generate PDFs
+os.makedirs("pdfs", exist_ok=True)  # Create a folder for PDFs
+
+for index, row in df.iterrows():
+    record = row.to_dict()  # Convert row to dictionary
+    pdf = PDF()
+    pdf.add_page()
+    pdf.add_table(record)
+    # Use "GCP/DB/CP Name/ID" as the filename
+    record_name = record.get("GCP/DB/CP Name/ID", f"Record_{index + 1}")
+    sanitized_name = "".join(c if c.isalnum() or c in "_-" else "_" for c in record_name)  # Sanitize name
+    pdf.output(f"pdfs/{sanitized_name}.pdf")
+
+print("PDFs generated successfully!")
+
+# Step 5: Download all PDFs as a ZIP file
+import zipfile
+
+zip_path = "pdfs.zip"
+with zipfile.ZipFile(zip_path, 'w') as zipf:
+    for root, dirs, files in os.walk("pdfs"):
+        for file in files:
+            zipf.write(os.path.join(root, file), arcname=file)
+
+from google.colab import files
+files.download(zip_path)
+
