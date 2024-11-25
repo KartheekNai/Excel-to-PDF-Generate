@@ -37,8 +37,3 @@ pdfs/
 pdfs.zip
 
 
-/
-├── main.py         # The Python script
-├── pdfs/           # Folder containing the generated PDFs
-├── pdfs.zip        # Compressed file with all PDFs
-└── README.md       # Project documentation
