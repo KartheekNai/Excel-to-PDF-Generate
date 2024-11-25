@@ -28,3 +28,17 @@ This project automates the creation of PDFs for each record in a Google Sheet, w
 Install the required Python libraries in Colab:
 ```bash
 !pip install gspread pandas fpdf2
+
+
+pdfs/
+├── ID_1.pdf
+├── ID_2.pdf
+├── ...
+pdfs.zip
+
+
+/
+├── main.py         # The Python script
+├── pdfs/           # Folder containing the generated PDFs
+├── pdfs.zip        # Compressed file with all PDFs
+└── README.md       # Project documentation
