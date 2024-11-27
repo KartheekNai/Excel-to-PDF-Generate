@@ -14,7 +14,7 @@ creds, _ = default()
 gc = gspread.authorize(creds)
 
 # Step 2: Load data from Google Sheets
-sheet_url = 'https://docs.google.com/spreadsheets/d/13uznePcbzOTIxpYNIVmOkZFzKpHXH-I4g2vIVwtjiO8/edit?usp=sharing'  # Replace with your Google Sheet URL
+sheet_url = 'Google sheet'  # Replace with your Google Sheet URL
 worksheet = gc.open_by_url(sheet_url).sheet1  # Fetch the first sheet
 data = worksheet.get_all_records()  # Get all records as a list of dictionaries
 df = pd.DataFrame(data)  # Convert to a pandas DataFrame
